@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Leaflet - Vector example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 1) inti map
+        const map = L.map('map').setView([0.5, 101.4], 6);
+
+        // 2) basemap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // 3) POINT (marker)
+        const marker = L.marker([0.7893, 100.8701]).addTo(map)
+            .bindPopup('Contoh Point: Marker');
+
+        // 4) LINE (polyline)
+        const polyline = L.polyline([
+            [0.9, 100.5],
+            [0.8, 101.0],
+            [0.6, 101.6]
+        ], { weight: 4 }).addTo(map).bindPopup('Contoh Line');
+
+        // 5) POLYGON
+        const polygon = L.polygon([
+            [0.2, 101.0],
+            [0.4, 101.3],
+            [0.3, 101.6],
+            [0.1, 101.4]
+        ], { color: 'green' }).addTo(map).bindPopup('Contoh Polygon');
+
+        // 6) GEOJSON (bisa berisi point/line/polygon)
+        const myGeoJson = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { "name": "GeoJSON Point" },
+                    "geometry": { "type": "Point", "coordinates": [101.2, 0.4] }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "GeoJSON Line" },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [
+                            [100.9, 0.2],
+                            [101.0, 0.3],
+                            [101.1, 0.1]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "GeoJSON Polygon" },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [101.3, 0.5],
+                            [101.45, 0.55],
+                            [101.4, 0.35],
+                            [101.3, 0.5]
+                        ]]
+                    }
+                }
+            ]
+        };
+
+        L.geoJSON(myGeoJson, {
+            onEachFeature: (feature, layer) => {
+                if (feature.properties && feature.properties.name) {
+                    layer.bindPopup(feature.properties.name);
+                }
+            }
+        }).addTo(map);
+
+        const group = L.featureGroup([marker, polyline, polygon]);
+        map.fitBounds(group.getBounds().pad(0.4));
+    </script>
+</body>
+
+</html>
