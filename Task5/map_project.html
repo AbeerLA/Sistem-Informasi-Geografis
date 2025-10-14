@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Leaflet Project Map - Sukabumi Example</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        html,
+        body,
+        #map {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 1️⃣ Init map (Sukabumi center)
+        const map = L.map('map').setView([-6.9218, 106.9281], 11);
+
+        // 2️⃣ Base maps
+        const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        const satellite = L.tileLayer(
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            {
+                maxZoom: 19,
+                attribution: '© Esri, Maxar, Earthstar Geographics'
+            }
+        );
+
+        // 3️⃣ GeoJSON data (Sample Sukabumi District boundary polygon)
+        const sukabumiBoundary = {
+            "type": "Feature",
+            "properties": { "name": "Sukabumi District Boundary" },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[
+                    [106.85, -6.80],
+                    [107.05, -6.80],
+                    [107.05, -7.00],
+                    [106.85, -7.00],
+                    [106.85, -6.80]
+                ]]
+            }
+        };
+
+        const geojsonLayer = L.geoJSON(sukabumiBoundary, {
+            style: {
+                color: "blue",
+                weight: 2,
+                fillColor: "lightblue",
+                fillOpacity: 0.3
+            },
+            onEachFeature: (feature, layer) => {
+                layer.bindPopup(feature.properties.name);
+            }
+        }).addTo(map);
+
+        // 4️⃣ Overlay 1: Marker (tourist spot)
+        const marker = L.marker([-6.927, 106.928])
+            .bindPopup('Sukabumi City Center - Marker');
+
+        // 5️⃣ Overlay 2: Polyline (example route)
+        const polyline = L.polyline([
+            [-6.927, 106.928],
+            [-6.940, 106.950],
+            [-6.960, 106.970]
+        ], { color: 'red', weight: 3 })
+            .bindPopup('Example Route - Polyline');
+
+        // 6️⃣ Overlay 3: Polygon (area highlight)
+        const polygon = L.polygon([
+            [-6.915, 106.920],
+            [-6.920, 106.940],
+            [-6.940, 106.930],
+            [-6.935, 106.910]
+        ], { color: 'green', fillColor: 'lime', fillOpacity: 0.5 })
+            .bindPopup('Example Area - Polygon');
+
+        // 7️⃣ Layer controls
+        const baseMaps = {
+            "OpenStreetMap": osm,
+            "Satellite": satellite
+        };
+
+        const overlayMaps = {
+            "Marker": marker,
+            "Polyline": polyline,
+            "Polygon": polygon,
+            "Sukabumi Boundary (GeoJSON)": geojsonLayer
+        };
+
+        L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+
+        // Add overlays to map by default
+        marker.addTo(map);
+        polyline.addTo(map);
+        polygon.addTo(map);
+    </script>
+</body>
+
+</html>
