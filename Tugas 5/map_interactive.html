@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Leaflet Interactive Map - Sukabumi</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 100vh;
+        }
+
+        .popup-content {
+            text-align: center;
+        }
+
+        .popup-content h3 {
+            margin: 5px 0;
+            color: #007bff;
+        }
+
+        .popup-content p {
+            margin: 0;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize map centered on Sukabumi
+        var map = L.map('map').setView([-6.918, 106.927], 12);
+
+        // Base maps
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '© Esri Satellite'
+        });
+
+        // Custom marker icon
+        var customIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/854/854878.png',
+            iconSize: [40, 40],
+            iconAnchor: [20, 40],
+            popupAnchor: [0, -35]
+        });
+
+        // Marker with popup and tooltip
+        var marker = L.marker([-6.918, 106.927], { icon: customIcon })
+            .bindPopup(`
+        <div class="popup-content">
+          <h3>Sukabumi City Center</h3>
+          <p><b>Population:</b> ~350,000</p>
+          <p><b>Known for:</b> Beautiful nature and tourism.</p>
+        </div>
+      `)
+            .bindTooltip("Click for details!", { direction: "top" })
+            .on('click', function () {
+                alert("You clicked Sukabumi City!");
+            });
+
+        // Polyline with tooltip
+        var line = L.polyline([
+            [-6.915, 106.92],
+            [-6.93, 106.94],
+            [-6.94, 106.97]
+        ], { color: 'red', weight: 4 })
+            .bindTooltip("Main route between Sukabumi districts");
+
+        // Polygon with popup
+        var polygon = L.polygon([
+            [-6.94, 106.9],
+            [-6.92, 106.92],
+            [-6.95, 106.95],
+            [-6.97, 106.93]
+        ], { color: 'green', fillOpacity: 0.4 })
+            .bindPopup("<b>Protected Forest Area</b><br>Part of Sukabumi’s conservation zone.");
+
+        // GeoJSON Boundary Example
+        var geojson = L.geoJSON({
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[106.90, -6.94], [106.96, -6.94], [106.96, -6.90], [106.90, -6.90], [106.90, -6.94]]]
+            }
+        }, {
+            color: "blue",
+            weight: 2,
+            fillOpacity: 0.1
+        }).bindTooltip("Sukabumi Boundary (GeoJSON)");
+
+        // Group overlays
+        var overlays = {
+            "Marker": marker,
+            "Polyline": line,
+            "Polygon": polygon,
+            "Sukabumi Boundary (GeoJSON)": geojson
+        };
+
+        // Base maps
+        var baseMaps = {
+            "OpenStreetMap": osm,
+            "Satellite": satellite
+        };
+
+        // Add layer control
+        L.control.layers(baseMaps, overlays).addTo(map);
+
+        // Add all overlays by default
+        marker.addTo(map);
+        line.addTo(map);
+        polygon.addTo(map);
+        geojson.addTo(map);
+    </script>
+</body>
+
+</html>
